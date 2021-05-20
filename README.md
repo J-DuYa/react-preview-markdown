@@ -7,3 +7,12 @@
 2. code preview
 	- 支持 react code and view
 	- typescript
+
+本地调试 以 npm link 为媒介
+
+## 本地运行demo
+```bash
+cd example
+
+npm run start
+```
