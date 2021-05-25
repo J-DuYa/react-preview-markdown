@@ -1,67 +1,190 @@
-/**
- * @description 主入口
- * 
- * hook
- * 
- * 2021-03-01
-*/
-import React, { useEffect, useState } from 'react';
-import { parser } from './utils';
-import marked from 'marked';
-import hljs from "highlight.js";
-import 'highlight.js/styles/monokai-sublime.css';
-import './index.less';
+import { BabelStandOne } from './babel';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import requireModuleDefault from './requireModuleDefault';
+import {
+Button,
+Affix,
+Anchor,
+AutoComplete,
+Alert,
+Avatar,
+BackTop,
+Badge,
+Breadcrumb,
+Calendar,
+Card,
+Collapse,
+Carousel,
+Cascader,
+Checkbox,
+Col,
+Comment,
+ConfigProvider,
+DatePicker,
+Descriptions,
+Divider,
+Dropdown,
+Drawer,
+Empty,
+Form,
+Grid,
+Input,
+Image,
+InputNumber,
+Layout,
+List,
+message,
+Menu,
+Mentions,
+Modal,
+Statistic,
+notification,
+PageHeader,
+Pagination,
+Popconfirm,
+Popover,
+Progress,
+Radio,
+Rate,
+Result,
+Row,
+Select,
+Skeleton,
+Slider,
+Space,
+Spin,
+Steps,
+Switch,
+Table,
+Transfer,
+Tree,
+TreeSelect,
+Tabs,
+Tag,
+TimePicker,
+Timeline,
+Tooltip,
+Typography,
+Upload
+} from 'antd';
 
-function genID(length){
-	return Number(Math.random().toString().substr(3,length) + Date.now()).toString(36);
-}
+const babelConfig = {
+  presets: [
+    'es2015',
+		'react'
+  ]
+};
 
-let list: any = [];
-
-marked.setOptions({
-	renderer: new marked.Renderer(),
-	highlight: function (code, lang) {
-		let mockId = genID(10);
-		const previewCode = code.replace('mountNode', 'document.getElementById("'+ mockId +'")');
-		list.push(previewCode);
-		if (lang === 'jsx') {
-			return `
-				<div id=${mockId}>demo</div>
-				<div class='codePreview'>${hljs.highlightAuto(code).value}</div>
-			`;
-		};
-		return hljs.highlightAuto(code).value;
-	},
-	gfm: true, // 允许 Git Hub标准的markdown.
-	pedantic: false, // 不纠正原始模型任何的不良行为和错误（默认为false）
-	sanitize: false, // 对输出进行过滤（清理），将忽略任何已经输入的html代码（标签）
-	tables: true, // 允许支持表格语法（该选项要求 gfm 为true）
-	breaks: false, // 允许回车换行（该选项要求 gfm 为true）
-	smartLists: true, // 使用比原生markdown更时髦的列表
-	smartypants: false, // 使用更为时髦的标点
+const importMapPlugin = ({ types }) => ({
+	visitor: {
+	  Program(path) {
+	    let lastExpr;
+	    for (let i = path.node.body.length - 1; i >= 0; i--) {
+              if (types.isExpressionStatement(path.node.body[i])) {
+                lastExpr = path.get(`body.${i}`);
+                break;
+              }
+	  }
+			
+        if (lastExpr) {
+          // ... and turn it into a return statement
+          lastExpr.replaceWith(types.returnStatement(lastExpr.node.expression));
+        }
+    }
+  }
 });
 
-const DyMarkdownPreview = function (props: any) {
-	const { values } = props;
-	const [html, setHtml] = useState<any>('');
-	const [preview, setPreview] = useState<any>();
+export default function parser (code: string) {
+	const output = BabelStandOne.transform(code, {
+		compact: true,
+		...babelConfig,
+		plugins: [importMapPlugin]
+	});
 
-	useEffect(() => {
-		setHtml(marked(values));
-	}, [])
+	const antd = {
+		Button,
+		Affix,
+		Anchor,
+		AutoComplete,
+		Alert,
+		Avatar,
+		BackTop,
+		Badge,
+		Breadcrumb,
+		Calendar,
+		Card,
+		Collapse,
+		Carousel,
+		Cascader,
+		Checkbox,
+		Col,
+		Comment,
+		ConfigProvider,
+		DatePicker,
+		Descriptions,
+		Divider,
+		Dropdown,
+		Drawer,
+		Empty,
+		Form,
+		Grid,
+		Input,
+		Image,
+		InputNumber,
+		Layout,
+		List,
+		message,
+		Menu,
+		Mentions,
+		Modal,
+		Statistic,
+		notification,
+		PageHeader,
+		Pagination,
+		Popconfirm,
+		Popover,
+		Progress,
+		Radio,
+		Rate,
+		Result,
+		Row,
+		Select,
+		Skeleton,
+		Slider,
+		Space,
+		Spin,
+		Steps,
+		Switch,
+		Table,
+		Transfer,
+		Tree,
+		TreeSelect,
+		Tabs,
+		Tag,
+		TimePicker,
+		Timeline,
+		Tooltip,
+		Typography,
+		Upload
+	};
 
-	useEffect(() => {
-		if (html) {
-			setPreview(list.map((node, idx) => (<div key={idx}>{parser(node)}</div>)));
-		}
-	}, [html]);
+	const imports = {
+		'ReactDOM': ReactDOM,
+		'require': require,
+		'_antd': antd,
+		...antd
+	};
 
-	return (
-		<div className='dy-markdown-editor'>
-			{ preview }
-			<div dangerouslySetInnerHTML={{ __html: html }} />
-		</div>
-	)
+	const importKeys = Object.keys(imports).filter(k => imports[k])
+	const importModules = importKeys.map(k => requireModuleDefault(imports[k]));
+	let element;
+	console.log('output.code', output.code);
+	const previewCode = output.code.replace('var _antd=require("antd");', '');
+	element = new Function("React", ...importKeys, previewCode)(
+		React,
+		...importModules
+	);
+
+	return element;
 }
-
-export default DyMarkdownPreview;
