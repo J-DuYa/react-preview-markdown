@@ -6,7 +6,7 @@
 本地调试 以 npm link 为媒介
 
 ## Demo 实例
-![image](https://user-images.githubusercontent.com/34503154/119803409-0179ad00-bf12-11eb-986a-8f63af92a253.png)
+![image](https://user-images.githubusercontent.com/34503154/119803536-1fdfa880-bf12-11eb-83aa-53ed7327d408.png)
 
 ## 本地运行demo
 ```bash
