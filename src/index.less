@@ -1,14 +1,63 @@
 .dy-markdown-editor {
 	padding: 10px;
+	font-size: 13px;
+	background-color: ivory;
+	ol, ul {
+		padding-inline-start: 24px;
+	}
+
+	li {
+		list-style-type: auto;
+		// margin-left: 20px;
+		code {
+			padding: 5px;
+			color: brown;
+		}
+	}
+	code {
+    margin: 0;
+    font-size: 85%;
+    background-color: #efefef;
+    border-radius: 3px;
+	}
+
+	blockquote {
+		padding: 8px 10px;
+		background-color: #efefef;
+		border-radius: 2px;
+		p {
+			margin-bottom: 0;
+		}
+	}
+
 	pre {
 		min-width: 400px;
 		max-width: 500px;
+		margin-top: 0;
+    margin-bottom: 24px;
+    // padding: 12px;
+    font-size: 1em;
+    border-radius: 2px;
+		overflow-x: auto;
+		white-space: pre-wrap;
 		code {
+			display: block;
+			padding: 0 1em;
+			-webkit-text-size-adjust: none;
+			overflow-x: auto;
+			white-space: pre;
+			border-radius: 2px;
 			.codePreview {
 				padding: 10px;
-				background-color: beige;
+				color: #fff;
+				background-color: black;
 				overflow-x: auto;
 				overflow-y: auto;
+			}
+			.dy-tool {
+				height: 40px;
+				border: 1px dashed #efefef;
+				background-color: aquamarine;
 			}
 		}
 	}
